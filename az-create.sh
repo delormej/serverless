@@ -55,7 +55,7 @@ az aks create \
     --docker-bridge-address 172.17.0.1/16 \
     --vnet-subnet-id $vnodesubnetid \
     --service-principal $appId \
-    --client-secret $password
+    --client-secret $password \
     --kubernetes-version $kversion \
     --generate-ssh-keys
 
