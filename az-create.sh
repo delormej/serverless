@@ -43,7 +43,7 @@ export password=79625caf-bd78-4c61-9135-03165676dd0c
 
 # Get the vnet and subnet ids 
 vnetid=$(az network vnet show --resource-group $rg --name $vnet --query id -o tsv)
-vnodesubnetid=$(az network vnet show -g $rg -n $vnet --query "subnets[?name=='$subnet_virtual_nodes'].{id:id}" --output tsv)
+subnetid=$(az network vnet subnet show -g $rg --vnet-name $vnet --name $subnet_nodes --query {id:id} --o tsv)
 
 # Allow AKS to use virtual network
 az role assignment create --assignee $appId --scope $vnetid --role Contributor
@@ -56,7 +56,7 @@ az aks create \
     --service-cidr 10.0.0.0/16 \
     --dns-service-ip 10.0.0.10 \
     --docker-bridge-address 172.17.0.1/16 \
-    --vnet-subnet-id $vnodesubnetid \
+    --vnet-subnet-id $subnetid \
     --service-principal $appId \
     --client-secret $password \
     --kubernetes-version $kversion \
