@@ -1,9 +1,12 @@
 export rg=knative
+export aks_name=knative-aks
 export location=eastus
 export kversion=1.12.4
 export vnet=aks-vnet
 export subnet_nodes=aks-node-subnet
 export subnet_virtual_nodes=aks-virtual-node-subnet
+export node_size=Standard_B2s
+export node_count=3
 
 # create a group to hold all resources
 az group create --name $rg --location $location
@@ -47,15 +50,25 @@ az role assignment create --assignee $appId --scope $vnetid --role Contributor
 
 az aks create \
     --resource-group $rg \
-    --name knative-aks \
-    --node-count 1 \
+    --name $aks_name \
+    --node-count $node_count \
     --network-plugin azure \
     --service-cidr 10.0.0.0/16 \
     --dns-service-ip 10.0.0.10 \
     --docker-bridge-address 172.17.0.1/16 \
     --vnet-subnet-id $vnodesubnetid \
     --service-principal $appId \
-    --client-secret $password
+    --client-secret $password \
     --kubernetes-version $kversion \
+    --node-vm-size $node_size \
     --generate-ssh-keys
 
+# Enable Azure CLI extension
+az extension add --source https://aksvnodeextension.blob.core.windows.net/aks-virtual-node/aks_virtual_node-0.2.0-py2.py3-none-any.whl
+
+# Install virtual node add-on to cluster.
+az aks enable-addons \
+    --resource-group $rg \
+    --name $aks_name \
+    --addons virtual-node \
+    --subnet-name $subnet_virtual_nodes
