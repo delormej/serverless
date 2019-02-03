@@ -1,0 +1,12 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: helloworld-service
+spec:
+  selector:
+    app: aci-helloworld
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 80
+  type: LoadBalancer
