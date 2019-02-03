@@ -8,6 +8,9 @@ export subnet_virtual_nodes=aks-virtual-node-subnet
 export node_size=Standard_B2s
 export node_count=3
 
+# Ensure that your susbscription is registered to use ACI
+az provider register --namespace Microsoft.ContainerInstance
+
 # create a group to hold all resources
 az group create --name $rg --location $location
 
