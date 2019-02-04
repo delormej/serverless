@@ -44,6 +44,13 @@ az ad sp create-for-rbac --skip-assignment
 export appId=d6fe7e3e-0787-4515-a466-b8a68c7cb259
 export password=79625caf-bd78-4c61-9135-03165676dd0c
 
+# Create a contributor role assignment with a scope of the ACR resource. 
+#SP_PASSWD=$(az ad sp create-for-rbac --name $SERVICE_PRINCIPAL_NAME --role Reader --scopes $ACR_REGISTRY_ID --query password --output tsv)
+
+# Get the service principle client id.
+#CLIENT_ID=$(az ad sp show --id http://$SERVICE_PRINCIPAL_NAME --query appId --output tsv)
+
+
 # Get the vnet and subnet ids 
 vnetid=$(az network vnet show --resource-group $rg --name $vnet --query id -o tsv)
 subnetid=$(az network vnet subnet show -g $rg --vnet-name $vnet --name $subnet_nodes --query {id:id} --o tsv)
@@ -66,6 +73,9 @@ az aks create \
     --node-vm-size $node_size \
     --generate-ssh-keys
 
+# Grab the credentials.
+az aks get-credentials --overwrite-existing -g $rg -n $aks_name
+
 # Enable Azure CLI extension
 az extension add --source https://aksvnodeextension.blob.core.windows.net/aks-virtual-node/aks_virtual_node-0.2.0-py2.py3-none-any.whl
 
@@ -75,3 +85,7 @@ az aks enable-addons \
     --name $aks_name \
     --addons virtual-node \
     --subnet-name $subnet_virtual_nodes
+
+# Install istio
+kubectl apply --filename https://github.com/knative/serving/releases/download/v0.3.0/istio-crds.yaml && \
+kubectl apply --filename https://github.com/knative/serving/releases/download/v0.3.0/istio.yaml
