@@ -4,8 +4,8 @@ export location=eastus
 export kversion=1.12.4
 export vnet=aks-vnet
 export subnet_nodes=aks-node-subnet
-export subnet_virtual_nodes=aks-virtual-node-subnet
-export node_size=Standard_B2s
+export subnet_virtual_nodes=aks-vnode-subnet
+export node_size=Standard_D2
 export node_count=3
 
 # Ensure that your susbscription is registered to use ACI
@@ -41,8 +41,8 @@ az ad sp create-for-rbac --skip-assignment
 #   "password": "79625caf-bd78-4c61-9135-03165676dd0c",
 #   "tenant": "72f988bf-86f1-41af-91ab-2d7cd011db47"
 # }
-export appId=d6fe7e3e-0787-4515-a466-b8a68c7cb259
-export password=79625caf-bd78-4c61-9135-03165676dd0c
+#export appId=d6fe7e3e-0787-4515-a466-b8a68c7cb259
+#export password=79625caf-bd78-4c61-9135-03165676dd0c
 
 # Create a contributor role assignment with a scope of the ACR resource. 
 #SP_PASSWD=$(az ad sp create-for-rbac --name $SERVICE_PRINCIPAL_NAME --role Reader --scopes $ACR_REGISTRY_ID --query password --output tsv)
@@ -58,10 +58,11 @@ subnetid=$(az network vnet subnet show -g $rg --vnet-name $vnet --name $subnet_n
 # Allow AKS to use virtual network
 az role assignment create --assignee $appId --scope $vnetid --role Contributor
 
+az extension add --name aks-preview
+
 az aks create \
     --resource-group $rg \
     --name $aks_name \
-    --node-count $node_count \
     --network-plugin azure \
     --service-cidr 10.0.0.0/16 \
     --dns-service-ip 10.0.0.10 \
@@ -71,7 +72,12 @@ az aks create \
     --client-secret $password \
     --kubernetes-version $kversion \
     --node-vm-size $node_size \
-    --generate-ssh-keys
+    --generate-ssh-keys \
+    --node-count $node_count \
+    --enable-vmss \
+    --enable-cluster-autoscaler \
+    --min-count 1 \
+    --max-count $node_count
 
 # Grab the credentials.
 az aks get-credentials --overwrite-existing -g $rg -n $aks_name
