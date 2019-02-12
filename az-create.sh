@@ -92,6 +92,30 @@ az aks enable-addons \
     --addons virtual-node \
     --subnet-name $subnet_virtual_nodes
 
-# Install istio
-kubectl apply --filename https://github.com/knative/serving/releases/download/v0.3.0/istio-crds.yaml && \
-kubectl apply --filename https://github.com/knative/serving/releases/download/v0.3.0/istio.yaml
+# Install helm (locally)
+brew install kubernetes-helm
+
+# Install tiller on the K8S cluster
+helm init
+
+
+# Install istio (without HELM)
+#kubectl apply --filename https://github.com/knative/serving/releases/download/v0.3.0/istio-crds.yaml && \
+#kubectl apply --filename https://github.com/knative/serving/releases/download/v0.3.0/istio.yaml
+
+# Specify the Istio version that will be leveraged throughout these instructions
+ISTIO_VERSION=1.0.5
+
+# MacOS
+curl -sL "https://github.com/istio/istio/releases/download/$ISTIO_VERSION/istio-$ISTIO_VERSION-osx.tar.gz" | tar xz
+
+cd istio-$ISTIO_VERSION
+helm install install/kubernetes/helm/istio --name istio --namespace istio-system \
+  --set global.controlPlaneSecurityEnabled=true \
+  --set grafana.enabled=true \
+  --set tracing.enabled=true \
+  --set kiali.enabled=true \
+  --set sidecarInjectorWebhook.enabled=false
+  
+
+  
