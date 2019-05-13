@@ -1,0 +1,65 @@
+#
+# Create namespaces
+#
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: internalaudit
+  labels:
+    purpose: internalaudit
+---
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: specials-quote
+  labels:
+    purpose: specials-quote
+---
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: netpol
+---
+#
+# Create Network Policy rules
+#
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: deny-from-all-namespaces-except-specials
+  namespace: internalaudit # This is the namespace where the rules will apply.
+spec:
+  podSelector: {} # what to apply the rules to
+  ingress:        
+  - from:         # specify which namespaces to allow traffic from
+    - namespaceSelector: 
+       matchLabels:
+         purpose: specials-quote
+    - namespaceSelector: 
+       matchLabels:
+         purpose: internalaudit
+---
+#
+# Deploy production pods
+#
+apiVersion: v1
+kind: Pod
+metadata:
+  name: backend
+  namespace: internalaudit  
+spec:
+  containers:
+  - name: backend
+    image: nginx
+    ports:
+    - containerPort: 80
+
+# TEST script
+
+## Get the IP of the backend pod:
+# backend=$(kubectl get pods backend -o=custom-columns=IP:status.podIP -n internalaudit)
+# echo $backend
+
+## Run a pod in the [netpol,internalaudit,specials-quote] namespace
+# kubectl run bb -n <NAMEPSACE> --rm -it --image=busybox --generator=run-pod/v1 -- ping $backend # /bin/ash
+# /# ping $backend
