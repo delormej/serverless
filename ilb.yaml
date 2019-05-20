@@ -1,0 +1,49 @@
+# Deploy app & service with internal load balancer
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+  labels:
+    app: ngnix
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ngnix
+  template:
+    metadata:
+      labels:
+        app: ngnix
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.7.9
+        ports:
+        - containerPort: 80
+---        
+apiVersion: v1
+kind: Service
+metadata:
+  name: internal-app
+  annotations:
+    service.beta.kubernetes.io/azure-load-balancer-internal: "true"
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 80
+  selector:
+    app: ngnix
+---
+# Deploy a dummy pod in the cluster to ssh into.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: bb
+spec:
+  containers:
+  - name: busybox
+    image: busybox
+    command:
+          - sleep
+          - "3600"
+  restartPolicy: Always
