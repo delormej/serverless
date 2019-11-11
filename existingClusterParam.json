@@ -1,0 +1,15 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "aroResourceId": {
+      "value": "/subscriptions/57052a80-f184-4850-9b7b-26d0db87a707/resourceGroups/jasondel-aro/providers/Microsoft.ContainerService/openShiftManagedClusters/jasondel-aro"
+    },
+    "aroResourceLocation": {
+      "value": "eastus2"
+    },
+    "workspaceResourceId": {
+      "value": "/subscriptions/57052a80-f184-4850-9b7b-26d0db87a707/resourceGroups/jasondel-aro/providers/Microsoft.OperationalInsights/workspaces/jasondel-aro-workspace"
+    }
+  }
+}
