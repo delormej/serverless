@@ -1,0 +1,8 @@
+apiVersion: "aadpodidentity.k8s.io/v1"
+kind: AzureIdentity
+metadata:
+  name: jasondel-ocp43-identity
+spec:
+  type: 0
+  ResourceID: /subscriptions/34beb8b0-c6ad-4448-8486-8a24649143cf/resourcegroups/jasondel-ocp-v4/providers/Microsoft.ManagedIdentity/userAssignedIdentities/jasondel-ocp-v4-identity
+  ClientID: c79b3654-d9e8-4e9f-a199-ee4e3052a3c4
